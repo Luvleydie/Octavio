@@ -1,0 +1,12 @@
+Options -Indexes
+
+# Si copias el proyecto completo a htdocs, solo public/ debe ser navegable.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [R=302,L]
+    RewriteRule ^(src|database|scripts|tests|docs|examples|storage|vendor)(/|$) - [F,L]
+    RewriteRule ^(config(\.example)?\.php|README\.md|.*\.(ps1|log|env|json|lock))$ - [F,L]
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

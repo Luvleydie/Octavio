@@ -1,0 +1,13 @@
+{
+    "name": "octavio/nomina-clara",
+    "description": "Sistema de nomina PHP con API GraphQL",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "webonyx/graphql-php": "^15.0"
+    },
+    "config": { "sort-packages": true }
+}

@@ -1,0 +1,56 @@
+@base = http://127.0.0.1:8088/api/graphql.php
+@token = REEMPLAZA_CON_DATA_LOGIN_TOKEN
+
+### Estado público
+POST {{base}}
+Content-Type: application/json
+
+{"query":"{ health { status database } }"}
+
+### Iniciar sesión; copiar data.login.token en @token
+POST {{base}}
+Content-Type: application/json
+
+{"query":"mutation Login($email: String!, $password: String!) { login(email: $email, password: $password) { token expires_at user { id name role } } }","operationName":"Login","variables":{"email":"admin@nomina.local","password":"Nomina2026!"}}
+
+### Empleados e indicadores
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"{ employees { id full_name department monthly_salary } dashboard { stats { active_employees pending_runs paid_total } } }"}
+
+### Vista previa de cálculo
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"query Preview($start: String!, $end: String!) { payrollPreview(period_start: $start, period_end: $end) { items { employee_id full_name net_pay can_create errors } totals { net } } }","variables":{"start":"2026-10-01","end":"2026-10-15"}}
+
+### Usuarios: solo administrador
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"{ users { id name email role status created_at } }"}
+
+### Crear una cuenta de consulta: solo administrador; usa un correo nuevo
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"mutation CrearUsuario($input: UserCreateInput!) { createUser(input: $input) { id name email role status } }","variables":{"input":{"name":"Consulta de nómina","email":"consulta@example.test","password":"EjemploTemporal2026!","role":"viewer","status":"active"}}}
+
+### Auditoría de usuarios: solo administrador; fechas inclusivas en UTC
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"query Historial($filter: AuditFilter) { auditLogs(filter: $filter) { items { id actor_id actor_name action entity entity_id summary created_at } total page per_page } }","variables":{"filter":{"entity":"user","date_from":"2026-10-01","date_to":"2026-10-31","page":1,"per_page":20}}}
+
+### Cerrar la sesión de este cliente
+POST {{base}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"query":"mutation { logout { authenticated message } }"}

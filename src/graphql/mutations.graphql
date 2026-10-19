@@ -1,0 +1,53 @@
+# Mutaciones de Nómina Clara.
+# Se envían al endpoint POST /api/graphql.php.
+# Este archivo define las operaciones; sus tipos están en schema.graphql.
+
+type Mutation {
+  # Iniciar sesión y obtener un token.
+  login(email: String!, password: String!): AuthPayload
+
+  # Cerrar la sesión actual.
+  logout: SessionMessage
+
+  # Cambiar la contraseña y cerrar todas las sesiones.
+  changePassword(current_password: String!, new_password: String!): SessionMessage
+
+  # Cerrar las demás sesiones del usuario.
+  revokeOtherSessions: SessionMessage
+
+  # Administración de cuentas: solo administradores.
+  createUser(input: UserCreateInput!): User
+  updateUser(id: ID!, input: UserUpdateInput!): User
+
+  # Catálogo de departamentos: solo administradores.
+  createDepartment(input: DepartmentCreateInput!): Department
+  updateDepartment(id: ID!, input: DepartmentUpdateInput!): Department
+
+  # Registrar un empleado.
+  createEmployee(input: EmployeeCreateInput!): Employee
+
+  # Actualizar los datos de un empleado.
+  updateEmployee(id: ID!, input: EmployeeUpdateInput!): Employee
+
+  # Registrar una asistencia, falta o permiso pagado.
+  createAttendance(input: AttendanceCreateInput!): Attendance
+
+  # Corregir un registro de asistencia.
+  updateAttendance(id: ID!, input: AttendanceUpdateInput!): Attendance
+
+  # Registrar un bono o una deducción.
+  createIncidence(input: IncidenceCreateInput!): Incidence
+
+  # Actualizar un bono o una deducción.
+  updateIncidence(id: ID!, input: IncidenceUpdateInput!): Incidence
+
+  # Calcular y guardar una nómina.
+  createPayroll(input: PayrollInput!): PayrollDetails
+
+  # Marcar una nómina como pagada y registrar la fecha.
+  payPayroll(id: ID!): PayrollDetails
+
+  # Cancelar una nómina en borrador con un motivo.
+  cancelPayroll(id: ID!, reason: String!): PayrollDetails
+
+}

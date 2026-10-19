@@ -1,0 +1,111 @@
+"Importe decimal en pesos: acepta números o cadenas con hasta dos decimales."
+scalar Money
+
+type Query {
+  health: Health
+  me: AuthPayload
+  sessions: [Session!]
+  users: [User!]
+  departments: [Department!]
+  auditLogs(filter: AuditFilter): AuditPage
+  employees: [Employee!]
+  attendance(filter: RecordFilter): [Attendance!]
+  incidences(filter: RecordFilter): [Incidence!]
+  payrolls: [Payroll!]
+  payroll(id: ID!): PayrollDetails
+  payrollPreview(period_start: String!, period_end: String!, employee_id: ID): PayrollPreview
+  payments: [Payroll!]
+  dashboard: Dashboard
+}
+
+# Las operaciones de escritura se definen en mutations.graphql.
+
+type Health { status: String!, database: String! }
+type User { id: ID!, name: String!, email: String!, role: String!, status: String!, created_at: String }
+type Department {
+  id: ID!, name: String!, status: String!, employee_count: Int!,
+  active_employee_count: Int!, created_at: String!
+}
+input DepartmentCreateInput { name: String!, status: String }
+input DepartmentUpdateInput { name: String, status: String }
+type AuditEntry {
+  id: ID!, actor_id: ID, actor_name: String!, action: String!, entity: String!,
+  entity_id: ID, summary: String!, created_at: String!
+}
+type AuditPage { items: [AuditEntry!]!, total: Int!, page: Int!, per_page: Int! }
+input AuditFilter {
+  actor_id: ID, action: String, entity: String, date_from: String, date_to: String,
+  page: Int, per_page: Int
+}
+input UserCreateInput { name: String!, email: String!, password: String!, role: String, status: String }
+input UserUpdateInput { name: String, email: String, password: String, role: String, status: String }
+type AuthPayload { authenticated: Boolean!, token: String, expires_at: String, user: User! }
+type SessionMessage { authenticated: Boolean, message: String!, revoked_count: Int }
+type Session { id: ID!, created_at: String!, expires_at: String!, current: Boolean! }
+type Employee {
+  id: ID!, employee_code: String!, full_name: String!, email: String,
+  department: String!, position: String!, monthly_salary: Float!, hire_date: String!,
+  status: String!, created_at: String!
+}
+type Attendance {
+  id: ID!, employee_id: ID!, employee_code: String!, full_name: String!,
+  work_date: String!, status: String!, notes: String, created_by: ID!, created_at: String!
+}
+type Incidence {
+  id: ID!, employee_id: ID!, employee_code: String!, full_name: String!,
+  occurrence_date: String!, type: String!, concept: String!, amount: Float!,
+  created_by: ID!, created_at: String!
+}
+type Payroll {
+  id: ID!, period_start: String!, period_end: String!, employee_count: Int!,
+  total_gross: Float!, total_deductions: Float!, total_net: Float!, status: String!,
+  created_by: ID!, created_at: String!, paid_at: String,
+  cancelled_at: String, cancelled_by: ID, cancellation_reason: String
+}
+type PayrollItem {
+  id: ID!, payroll_id: ID!, employee_id: ID!, employee_code: String!, full_name: String!,
+  department: String!, position: String!, monthly_salary: Float!, days_worked: Int!,
+  base_pay: Float!, bonus: Float!, deduction: Float!, gross_pay: Float!, net_pay: Float!
+}
+type PayrollDetails { payroll: Payroll!, items: [PayrollItem!]!, incidence_ids: [ID!]! }
+type PreviewItem {
+  employee_id: ID!, employee_code: String!, full_name: String!, monthly_salary: Float!,
+  days_worked: Int!, attendance_count: Int!, present_days: Int!, absent_days: Int!, paid_leave_days: Int!,
+  bonus: Float!, deduction: Float!, incidence_ids: [ID!]!, base_pay: Float, gross_pay: Float,
+  net_pay: Float, can_create: Boolean!, errors: [String!]!
+}
+type PreviewTotals { gross: Float!, deductions: Float!, net: Float! }
+type PayrollPreview {
+  period_start: String!, period_end: String!, items: [PreviewItem!]!,
+  totals: PreviewTotals!, can_create: Boolean!
+}
+type DashboardStats {
+  active_employees: Int!, monthly_payroll: Float!, last_run_total: Float!,
+  total_runs: Int!, pending_runs: Int!, paid_total: Float!
+}
+type DepartmentTotal { department: String!, total: Int! }
+type MonthlyPayment { month: String!, total: Float! }
+type Dashboard {
+  stats: DashboardStats!, departments: [DepartmentTotal!]!,
+  recent_runs: [Payroll!]!, monthly_payments: [MonthlyPayment!]!
+}
+
+input RecordFilter { employee_id: ID, period_start: String, period_end: String }
+input EmployeeCreateInput {
+  employee_code: String!, full_name: String!, email: String, department: String!,
+  position: String!, monthly_salary: Money!, hire_date: String!, status: String
+}
+input EmployeeUpdateInput {
+  employee_code: String, full_name: String, email: String, department: String,
+  position: String, monthly_salary: Money, hire_date: String, status: String
+}
+input AttendanceCreateInput { employee_id: ID!, work_date: String!, status: String!, notes: String }
+input AttendanceUpdateInput { employee_id: ID, work_date: String, status: String, notes: String }
+input IncidenceCreateInput {
+  employee_id: ID!, occurrence_date: String!, type: String!, concept: String!, amount: Money!
+}
+input IncidenceUpdateInput { employee_id: ID, occurrence_date: String, type: String, concept: String, amount: Money }
+input PayrollItemInput { employee_id: ID!, days_worked: Int, bonus: Money, deduction: Money }
+input PayrollInput {
+  period_start: String!, period_end: String!, use_records: Boolean = false, items: [PayrollItemInput!]!
+}

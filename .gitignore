@@ -1,0 +1,12 @@
+/config.php
+/vendor/
+/storage/*
+!/storage/.gitkeep
+__pycache__/
+*.pyc
+.env
+.DS_Store
+Thumbs.db
+~$*
+.env.*
+!.env.example
